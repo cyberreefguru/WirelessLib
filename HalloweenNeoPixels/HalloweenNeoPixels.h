@@ -7,14 +7,27 @@
 #ifndef _HalloweenNeoPixels_H_
 #define _HalloweenNeoPixels_H_
 #include "Arduino.h"
-//add your includes for the project HalloweenNeoPixels here
+//#include "RGB.h"
+#include <Adafruit_NeoPixel.h>
 
+#define RED		0x00FF0000
+#define BLUE	0x000000FF
+#define GREEN	0x0000FF00
+#define MAGENTA	RED | BLUE
+#define CYAN	BLUE | GREEN
+#define YELLOW	RED | GREEN
+#define ORANGE	0xFF3300
+#define PURPLE	0x990099
 
 //end of add your includes here
-
-
-//add your function definitions for the project HalloweenNeoPixels here
-
+#ifdef __cplusplus
+extern "C" {
+#endif
+void loop();
+void setup();
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 
 
