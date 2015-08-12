@@ -2,11 +2,14 @@
 //#include "RGB.h"
 
 
-#define NUM_PIXELS 14
+#define NUM_PIXELS 50
 #define HALF NUM_PIXELS/2
 #define PIN 2
 #define DOWN 	0
 #define UP		1
+#define RIGHT	0
+#define LEFT	1
+
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUM_PIXELS, PIN);
 
 uint32_t buffer[NUM_PIXELS];
@@ -14,11 +17,11 @@ uint8_t mode = 0;
 
 void rainbowFadeStrip(uint32_t runTime, uint32_t fadeTime);
 void rainbowFadeOne(uint32_t runTime, uint16_t fadeTime);
-void rainbowStrip();
 void randomFlash(uint8_t repeat, uint32_t runTime, uint16_t holdTime);
 void randomFlashColor(uint32_t runTime, uint16_t holdTime, uint32_t color);
-void colorWipe(uint8_t repeat, uint32_t c, uint16_t wait, uint8_t clearAfter);
-void car();
+void colorWipe(uint8_t repeat, uint8_t direction, uint32_t color1, uint16_t wait, uint8_t clearAfter, uint8_t clearBetween);
+void colorBounce(uint8_t repeat, uint8_t direction, uint32_t color1, uint32_t color2, uint16_t waitTime, uint8_t clearAfter);
+
 void clear();
 uint32_t Wheel(byte WheelPos);
 void sequenceHalf(uint8_t repeat, uint32_t c, uint16_t waitTime, uint8_t clearAfter);
@@ -44,11 +47,11 @@ void writeColor(uint8_t r, uint8_t g, uint8_t b)
 	color = color<<8;
 	color = color | b;
 
-  for(uint8_t i=0; i<NUM_PIXELS; i++)
-  {
-	  pixels.setPixelColor(i, color);
-  }
-  pixels.show();
+	for(uint8_t i=0; i<NUM_PIXELS; i++)
+	{
+		pixels.setPixelColor(i, color);
+	}
+	pixels.show();
 }
 
 
@@ -62,24 +65,24 @@ uint32_t add(uint32_t color, uint8_t v)
 
 void writeColor(uint32_t color, uint8_t show)
 {
-  for(uint8_t i=0; i<NUM_PIXELS; i++)
-  {
-	  pixels.setPixelColor(i, color);
-  }
-  if(show)
-  {
-	  pixels.show();
-  }
+	for(uint8_t i=0; i<NUM_PIXELS; i++)
+	{
+		pixels.setPixelColor(i, color);
+	}
+	if(show)
+	{
+		pixels.show();
+	}
 }
 
 
 void writeColor(uint32_t color)
 {
-  for(uint8_t i=0; i<NUM_PIXELS; i++)
-  {
-	  pixels.setPixelColor(i, color);
-  }
-  pixels.show();
+	for(uint8_t i=0; i<NUM_PIXELS; i++)
+	{
+		pixels.setPixelColor(i, color);
+	}
+	pixels.show();
 }
 
 void strobe(uint32_t duration)
@@ -140,11 +143,11 @@ void fade(uint8_t direction, uint32_t time, uint32_t color)
 	{
 		if( direction == DOWN )
 		{
-			  pixels.setBrightness(255-i);
+			pixels.setBrightness(255-i);
 		}
 		else if( direction == UP)
 		{
-			  pixels.setBrightness(i);
+			pixels.setBrightness(i);
 		}
 		writeColor( color );
 		delay(time);
@@ -244,160 +247,226 @@ void setup()
 
 void loop()
 {
-	uint8_t i, b;
 
-	uint32_t x, high, low;
+	// TODO: test
+	uint8_t i;
 
-	b = false;
+	clear();
 
-	fade(UP, 10, ORANGE);
-	delay(5000);
-	fade(DOWN, 10, ORANGE);
+//	rainbowFadeStrip(2000, 25);
+//
+//	rainbowFadeOne(2000, 25);
 
-	selectCrossover();
-
-	fade(UP, 10, PURPLE);
-	delay(5000);
-	fade(DOWN, 10, PURPLE);
-
-	fade(UP, 10, RED);
-	delay(5000);
-	selectCrossover();
-	fade(DOWN, 10, RED);
-
-	fade(UP, 10, GREEN);
-	delay(5000);
-	fade(DOWN, 10, GREEN);
-	selectCrossover();
-
-	fade(UP, 10, BLUE);
-	delay(5000);
-	selectCrossover();
-	fade(DOWN, 10, BLUE);
-
-	selectCrossover();
+	colorBounce(6, LEFT, RED, BLUE, 25, false);
+	clear();
+	colorBounce(6, LEFT, RED, BLUE, 25, true);
+	clear();
+	colorWipe(3, LEFT, RED, 25, true, true);
+	colorWipe(3, RIGHT, RED, 25, true, true);
 
 
+	for(i=0; i<10; i++)
+	{
+		colorWipe(1, LEFT, RED, 100-(i*10), false ,true);
+	}
+
+	for(i=0; i<10; i++)
+	{
+		sequenceHalf(1, BLUE, 100-(i*10), true);
+	}
+	colorWipe(10, LEFT, RED, 10, false, true);
 
 }
 
 
-/** makes whole strip the same color rainbox **/
+/** makes whole strip the same color rainbow **/
 void rainbowFadeStrip(uint32_t runTime, uint32_t fadeTime)
 {
-  uint32_t endTime  = millis() + runTime;
-  uint16_t i, j;
+	uint32_t endTime  = millis() + runTime;
+	uint16_t i, j;
 
-  while( millis() < endTime )
-  {
+	while( millis() < endTime )
+	{
 
-    for(j=0; j<256; j++)
-    {
-      for(i=0; i<NUM_PIXELS; i++)
-      {
-        pixels.setPixelColor(i, Wheel((j) & 255));
-      }
-      pixels.show();
-      delay(fadeTime);
-    } // end for
-  }
+		for(j=0; j<256; j++)
+		{
+			for(i=0; i<NUM_PIXELS; i++)
+			{
+				pixels.setPixelColor(i, Wheel((j) & 255));
+			}
+			pixels.show();
+			delay(fadeTime);
 
-  clear();
+			if( millis() > endTime )
+			{
+				break;
+			}
+		} // end for
+	}
+
+	clear();
 
 }
 
 void rainbowFadeOne(uint32_t runTime, uint16_t fadeTime)
 {
-  uint32_t endTime  = millis() + runTime;
-  uint16_t i, j;
+	uint32_t endTime  = millis() + runTime;
+	uint16_t i, j;
 
-  while( millis() < endTime )
-  {
-    for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
-      for(i=0; i< pixels.numPixels(); i++) {
-        pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
-      }
-      pixels.show();
-      delay(fadeTime);
-    }
-  }
-  clear();
+	while( millis() < endTime )
+	{
+		for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+			for(i=0; i< pixels.numPixels(); i++) {
+				pixels.setPixelColor(i, Wheel(((i * 256 / pixels.numPixels()) + j) & 255));
+			}
+			pixels.show();
+			delay(fadeTime);
+
+			// check delay and break if necessary
+			if( millis() > endTime )
+			{
+				break;
+			}
+		}
+	}
+	clear();
 }
 
 /**
-* Flashes random LED with random color
-*/
+ * Flashes random LED with random color
+ */
 void randomFlash(uint8_t repeat, uint32_t runTime, uint16_t holdTime)
 {
-  for(uint8_t i=0; i<repeat; i++)
-  {
-    randomFlashColor(runTime, holdTime, Wheel( random(0xff) ));
-  }
+	for(uint8_t i=0; i<repeat; i++)
+	{
+		randomFlashColor(runTime, holdTime, Wheel( random(0xff) ));
+	}
 
 } // randomFlash
 
 
 /**
-* Flashes random LED with specified color
-*/
+ * Flashes random LED with specified color
+ */
 void randomFlashColor(uint32_t runTime, uint16_t holdTime, uint32_t color)
 {
-  uint32_t endTime  = millis() + runTime;
-  uint8_t i;
+	uint32_t endTime  = millis() + runTime;
+	uint8_t i;
 
-  // loop for duration
-  while( millis() < endTime )
-  {
-    i = random(NUM_PIXELS);
-    pixels.setPixelColor(i, color);
-    pixels.show();
-    delay(holdTime);
-    pixels.setPixelColor(i, 0);
-  }
+	// loop for duration
+	while( millis() < endTime )
+	{
+		i = random(NUM_PIXELS);
+		pixels.setPixelColor(i, color);
+		pixels.show();
+		delay(holdTime);
+		pixels.setPixelColor(i, 0);
+	}
 
 } // randomFlash
 
-// Fill the dots one after the other with a color
-void colorWipe(uint32_t c, uint16_t waitTime, uint8_t clearAfter)
+void setWipeColor(uint32_t newColor, uint16_t index, uint32_t waitTime, uint8_t clearAfter)
 {
-  for(uint8_t i=0; i<pixels.numPixels(); i++)
-  {
-      if(clearAfter==true && i !=0)
-      {
-        pixels.setPixelColor(i-1,0);
-      }
-      else if(clearAfter == true && i==0)
-      {
-        pixels.setPixelColor(pixels.numPixels()-1,0);
-      }
-      pixels.setPixelColor(i, c);
-      pixels.show();
-      delay(waitTime);
-  }
+	uint32_t curColor;
+
+	curColor = pixels.getPixelColor(index);
+	pixels.setPixelColor(index, newColor);
+	pixels.show();
+	delay(waitTime);
+	if(clearAfter == true)
+	{
+		pixels.setPixelColor(index,curColor);
+		pixels.show();
+	}
+
 }
+
+/**
+ * Turns on LEDs one at time in sequence.  LEFT = 0->n; RIGHT = n -> 0
+ *
+ * @repeat - number of times to repeat
+ * @direction - left (up) or right (down)
+ * @color - color to fill LEDs with
+ * @waitTime - time to keep LED on
+ * @clearAfter - turn LED off after waiting
+ * @clearBetween - clear string in between repeats
+ */
+void colorWipe(uint8_t repeat, uint8_t direction, uint32_t color, uint16_t waitTime, uint8_t clearAfter, uint8_t clearBetween)
+{
+	uint32_t oldColor;
+
+	for(uint8_t k=0; k<repeat; k++)
+	{
+		if( direction == LEFT)
+		{
+			for(uint8_t i=0; i<pixels.numPixels(); i++)
+			{
+				setWipeColor(color, i, waitTime, clearAfter);
+			}
+		}
+		else if (direction == RIGHT )
+		{
+			for(uint8_t i=pixels.numPixels(); i>0; i--)
+			{
+				setWipeColor(color, i, waitTime, clearAfter);
+			}
+		}
+
+		if( clearBetween )
+		{
+			clear();
+		}
+
+	} // end repeat
+}
+
+// Fill the dots one after the other with a color and returns
+void colorBounce(uint8_t repeat, uint8_t direction, uint32_t color1, uint32_t color2, uint16_t waitTime, uint8_t clearAfter)
+{
+	for(uint8_t k=0; k<repeat; k++)
+	{
+		if( direction == LEFT )
+		{
+			colorWipe(1, LEFT, color1, waitTime, clearAfter, false);
+			delay(waitTime);
+			colorWipe(1, RIGHT, color2, waitTime, clearAfter, false);
+			delay(waitTime);
+		}
+		else if (direction == RIGHT )
+		{
+			colorWipe(1, RIGHT, color1, waitTime, clearAfter, false);
+			delay(waitTime);
+			colorWipe(1, LEFT, color2, waitTime, clearAfter, false);
+			delay(waitTime);
+		}
+	} // end repeat
+}
+
+
 
 // Fill the dots one after the other with a color
 void sequenceHalf(uint8_t repeat, uint32_t c, uint16_t waitTime, uint8_t clearAfter)
 {
-  uint8_t numPixels = pixels.numPixels();
-  uint8_t halfNumPixels = numPixels/2;
+	uint8_t numPixels = pixels.numPixels();
+	uint8_t halfNumPixels = numPixels/2;
 
-  for(uint8_t r=0; r< repeat; r++)
-  {
-    for(uint8_t i=0; i<halfNumPixels; i++)
-    {
-        pixels.setPixelColor(i, c);
-        pixels.setPixelColor((numPixels-1)-i, c);
-        pixels.show();
-        delay(waitTime);
+	for(uint8_t r=0; r< repeat; r++)
+	{
+		for(uint8_t i=0; i<halfNumPixels; i++)
+		{
+			pixels.setPixelColor(i, c);
+			pixels.setPixelColor((numPixels-1)-i, c);
+			pixels.show();
+			delay(waitTime);
 
-        if( clearAfter == true )
-        {
-          pixels.setPixelColor(i, 0);
-          pixels.setPixelColor((numPixels-1)-i, 0);
-        }
-    }
-  }
+			if( clearAfter == true )
+			{
+				pixels.setPixelColor(i, 0);
+				pixels.setPixelColor((numPixels-1)-i, 0);
+			}
+		}
+		clear();
+	}
 }
 
 
@@ -405,24 +474,24 @@ void sequenceHalf(uint8_t repeat, uint32_t c, uint16_t waitTime, uint8_t clearAf
 // The colours are a transition r - g - b - back to r.
 uint32_t Wheel(byte WheelPos)
 {
-  if(WheelPos < 85) {
-   return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-  } else if(WheelPos < 170) {
-   WheelPos -= 85;
-   return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-  } else {
-   WheelPos -= 170;
-   return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-  }
+	if(WheelPos < 85) {
+		return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+	} else if(WheelPos < 170) {
+		WheelPos -= 85;
+		return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+	} else {
+		WheelPos -= 170;
+		return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+	}
 }
 
 void clear()
 {
-  for(uint8_t i=0; i<NUM_PIXELS; i++)
-  {
-     pixels.setPixelColor(i, 0);
-  }
-  pixels.show();
+	for(uint8_t i=0; i<NUM_PIXELS; i++)
+	{
+		pixels.setPixelColor(i, 0);
+	}
+	pixels.show();
 
 }
 
