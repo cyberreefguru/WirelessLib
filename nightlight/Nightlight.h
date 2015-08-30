@@ -4,11 +4,18 @@
 // - extern variable definitions
 // In the appropriate section
 
-#ifndef _HalloweenNeoPixels_H_
-#define _HalloweenNeoPixels_H_
+#ifndef _Nightlight_H_
+#define _Nightlight_H_
 #include "Arduino.h"
-//#include "RGB.h"
 #include <Adafruit_NeoPixel.h>
+
+#define DOWN 	0
+#define UP		1
+#define RIGHT	0
+#define LEFT	1
+#define IN		0
+#define OUT		1
+
 
 #define WHITE	0x00FFFFFF
 #define BLACK	0x00000000
@@ -21,17 +28,8 @@
 #define ORANGE	0xFF3300
 #define PURPLE	0x990099
 
-//end of add your includes here
-#ifdef __cplusplus
-extern "C" {
-#endif
-void loop();
-void setup();
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 
 
 //Do not add code below this line
-#endif /* _HalloweenNeoPixels_H_ */
+#endif /* _Nightlight_H_ */

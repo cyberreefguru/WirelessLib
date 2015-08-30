@@ -1,7 +1,7 @@
 // Do not remove the include below
 #include "HalloweenNeoPixels.h"
 
-#define NUM_PIXELS 14
+#define NUM_PIXELS 50
 #define HALF NUM_PIXELS/2
 #define PIN 2
 #define DOWN 	0
@@ -24,7 +24,7 @@ void setup()
 	randomSeed(analogRead(0));
 	pixels.begin();
 	pixels.setBrightness(255);
-	writeColor(0x00ffffff, false);
+	writeColor(WHITE, false);
 }
 
 // The loop function is called in an endless loop
@@ -105,9 +105,9 @@ void strobe(uint32_t duration)
 
 	while( millis() < end )
 	{
-		writeColor(0xffffff, true);
+		writeColor(WHITE, true);
 		delay(35);
-		writeColor(0x000000, true);
+		writeColor(BLACK, true);
 		delay(35);
 	}
 }
@@ -126,7 +126,7 @@ void lightning()
 	for(i=0; i<count; i++)
 	{
 		large = random(0,100);
-		writeColor(0xffffff, true);
+		writeColor(WHITE, true);
 		if( large > 40 && b == false)
 		{
 			delay(random(100, 350));
@@ -136,7 +136,7 @@ void lightning()
 		{
 			delay(random(20, 50));
 		}
-		writeColor(0x000000, true);
+		writeColor(BLACK, true);
 		if( large > 40 && b == false )
 		{
 			delay(random(200, 500));
