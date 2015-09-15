@@ -7,8 +7,7 @@
 #ifndef _NeoWirelessLib_H_
 #define _NeoWirelessLib_H_
 #include "Arduino.h"
-
-
+#include
 
 #define CMD_ERROR				0x00
 #define CMD_PATTERN 			0x01
@@ -26,24 +25,6 @@ static const uint8_t COMMANDS[NUM_COMMANDS] = {CMD_PATTERN, CMD_RUNWAY, CMD_BOUN
 static const uint8_t COMMAND_LEN[NUM_COMMANDS] = {18, 20, 20, 19, 4, 5, 7, 9};
 #define MAX_COMMAND_SIZE		25
 
-#define DOWN 	0
-#define UP		1
-#define RIGHT	0
-#define LEFT	1
-#define IN		0
-#define OUT		1
-
-
-#define WHITE	0x00FFFFFF
-#define BLACK	0x00000000
-#define RED		0x00FF0000
-#define BLUE	0x000000FF
-#define GREEN	0x0000FF00
-#define MAGENTA	RED | BLUE
-#define CYAN	BLUE | GREEN
-#define YELLOW	RED | GREEN
-#define ORANGE	0xFF3300
-#define PURPLE	0x990099
 
 typedef struct CommandPattern
 {
