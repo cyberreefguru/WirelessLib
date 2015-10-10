@@ -17,9 +17,5 @@
 #define OUT		1
 
 
-
-
-
-
 //Do not add code below this line
 #endif /* _NeoPixelLib_H_ */

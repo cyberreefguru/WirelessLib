@@ -71,25 +71,35 @@ void loop()
  * Tests all commands
  */void test()
 {
-     // Test all on
-     printf("All\n\r");
-     cmdSetAll = (set_all_t *)commandBuffer;
-     cmdSetAll->command = CMD_SET_ALL;
-     cmdSetAll->color = WHITE;
+     // Test fill
+     printf("Fill\n\r");
+     cmdFill = (fill_t *)commandBuffer;
+     cmdFill->command = CMD_FILL;
+     cmdFill->color = WHITE;
      sendCommand();
      delay(4000);
-     cmdSetAll->color = RED;
+     cmdFill->color = RED;
      sendCommand();
      delay(4000);
-     cmdSetAll->color = BLACK;
+     cmdFill->color = BLACK;
      sendCommand();
      delay(4000);
 
+     // Test Fill Pattern
+     printf("Fill Pattern\n\r");
+     cmdFillPattern = (fill_pattern_t *) commandBuffer;
+     cmdFillPattern->command = CMD_FILL_PATTERN;
+     cmdFillPattern->pattern = 0x03;
+	 cmdFillPattern->onColor = CYAN;
+	 cmdFillPattern->offColor = CRGB::Brown;
+	 sendCommand();
+	 delay(4000);
 
     // Test Pattern
     printf("Pattern\n\r");
     cmdPattern = (pattern_t *) commandBuffer;
     cmdPattern->command = CMD_PATTERN;
+    cmdPattern->repeat = 0;
     cmdPattern->pattern = 0x33;
     cmdPattern->direction = LEFT;
     cmdPattern->onColor = RED;
@@ -100,32 +110,33 @@ void loop()
     delay(4000);
 
     // Test Runway
-    printf("Runway\n\r");
-    cmdRunway = (runway_t *) commandBuffer;
-    cmdRunway->command = CMD_RUNWAY;
-    cmdRunway->pattern = 2;
-    cmdRunway->direction = LEFT;
-    cmdRunway->onColor = RED;
-    cmdRunway->offColor = BLUE;
-    cmdRunway->onTime = 100;
-    cmdRunway->offTime = 0;
-    cmdRunway->clearAfter = true;
-    cmdRunway->clearEnd = true;
+    printf("Wipe\n\r");
+    cmdWipe = (wipe_t *) commandBuffer;
+    cmdWipe->command = CMD_WIPE;
+    cmdWipe->pattern = 2;
+    cmdWipe->direction = LEFT;
+    cmdWipe->onColor = RED;
+    cmdWipe->offColor = BLUE;
+    cmdWipe->onTime = 100;
+    cmdWipe->offTime = 0;
+    cmdWipe->clearAfter = true;
+    cmdWipe->clearEnd = true;
     sendCommand();
     delay(6000);
 
-    cmdRunway->onTime = 50;
+    cmdWipe->onTime = 50;
     sendCommand();
     delay(4000);
 
-    cmdRunway->onTime = 25;
+    cmdWipe->onTime = 25;
     sendCommand();
     delay(4000);
 
     // Test bounce
-    printf("Bounce\n\r");
+    printf("Bounce - Clear After\n\r");
     cmdBounce = (bounce_t *) commandBuffer;
     cmdBounce->command = CMD_BOUNCE;
+    cmdBounce->repeat = 0;
     cmdBounce->pattern = 0x01;
     cmdBounce->direction = LEFT;
     cmdBounce->onColor = RED;
@@ -138,10 +149,26 @@ void loop()
     sendCommand();
     delay(6000);
 
+    // Test bounce
+    printf("Bounce - No Clear After\n\r");
+    cmdBounce->onColor = GREEN;
+    cmdBounce->offColor = WHITE;
+    cmdBounce->clearAfter = false;
+    cmdBounce->clearEnd = false;
+    sendCommand();
+    delay(6000);
+
+    // Clear after test
+    cmdFill = (fill_t *)commandBuffer;
+    cmdFill->command = CMD_FILL;
+    cmdFill->color = BLACK;
+    sendCommand();
+
     // Test Middle
     printf("Middle\n\r");
     cmdMiddle = (middle_t *) commandBuffer;
     cmdMiddle->command = CMD_MIDDLE;
+    cmdMiddle->repeat = 0;
     cmdMiddle->direction = LEFT;
     cmdMiddle->onColor = RED;
     cmdMiddle->offColor = BLUE;
@@ -155,42 +182,101 @@ void loop()
     sendCommand();
     delay(2000);
 
+     // Test random flash
+     printf("Random Flash - Red/Black\n\r");
+     cmdRandomFlash = (random_flash_t *) commandBuffer;
+     cmdRandomFlash->command = CMD_RANDOM_FLASH;
+     cmdRandomFlash->onColor = RED;
+     cmdRandomFlash->offColor = BLACK;
+     cmdRandomFlash->onTime = 25;
+     cmdRandomFlash->offTime = 0;
+     sendCommand();
+     delay(5000);
+
+     // Test random flash
+     printf("Random Flash - White/Red\n\r");
+     cmdRandomFlash = (random_flash_t *) commandBuffer;
+     cmdRandomFlash->command = CMD_RANDOM_FLASH;
+     cmdRandomFlash->onColor = WHITE;
+     cmdRandomFlash->offColor = RED;
+     cmdRandomFlash->onTime = 25;
+     cmdRandomFlash->offTime = 0;
+     sendCommand();
+     delay(5000);
+
+    // Test rainbow
+    printf("Rainbow\n\r");
+    cmdRainbow = (rainbow_t *) commandBuffer;
+    cmdRainbow->command = CMD_RAINBOW;
+    cmdRainbow->glitterProbability = 0;
+    sendCommand();
+    delay(4000);
+
+    // Test rainbow
+    printf("Rainbow with glitter\n\r");
+    cmdRainbow = (rainbow_t *) commandBuffer;
+    cmdRainbow->command = CMD_RAINBOW;
+    cmdRainbow->glitterProbability = 80;
+    cmdRainbow->glitterColor = WHITE;
+    sendCommand();
+    delay(4000);
+
+    // Test rainbow
+    printf("Rainbow with blue glitter\n\r");
+    cmdRainbow = (rainbow_t *) commandBuffer;
+    cmdRainbow->command = CMD_RAINBOW;
+    cmdRainbow->glitterProbability = 80;
+    cmdRainbow->glitterColor = BLUE;
+    sendCommand();
+    delay(4000);
+
     // Test rainbow fade
-    printf("Fade\n\r");
+    printf("Rainbow Fade\n\r");
     cmdRainbowFade = (rainbow_fade_t *) commandBuffer;
     cmdRainbowFade->command = CMD_RAINBOW_FADE;
-    cmdRainbowFade->fadeTime = 50;
     sendCommand();
     delay(4000);
 
-    // Test rainbow fade one
-    printf("Fade One\n\r");
-    cmdRainbowFadeOne = (rainbow_fade_one_t *) commandBuffer;
-    cmdRainbowFadeOne->command = CMD_RAINBOW_FADE_ONE;
-    cmdRainbowFadeOne->fadeTime = 50;
+    // Test confetti
+    printf("Confetti - 10\n\r");
+    cmdConfetti = (confetti_t *) commandBuffer;
+    cmdConfetti->command = CMD_CONFETTI;
+    cmdConfetti->color = RED;
+    cmdConfetti->numOn = 10;
     sendCommand();
     delay(4000);
 
-    // Test random flash
-    printf("Random Flash\n\r");
-    cmdRandomFlash = (random_flash_t *) commandBuffer;
-    cmdRandomFlash->command = CMD_RANDOM_FLASH;
-    cmdRandomFlash->onTime = 25;
-    cmdRandomFlash->offTime = 0;
+    // Test confetti
+    printf("Confetti - 5\n\r");
+    cmdConfetti = (confetti_t *) commandBuffer;
+    cmdConfetti->command = CMD_CONFETTI;
+    cmdConfetti->color = GREEN;
+    cmdConfetti->numOn = 5;
     sendCommand();
-    delay(5000);
+    delay(4000);
 
-    // Test random flash with color
-    printf("Random Flash Color\n\r");
-    cmdRandomFlashColor = (random_flash_color_t *) commandBuffer;
-    cmdRandomFlashColor->command = CMD_RANDOM_FLASH_COLOR;
-    cmdRandomFlashColor->onColor = RED;
-    cmdRandomFlashColor->offColor = BLUE;
-    cmdRandomFlashColor->onTime = 25;
-    cmdRandomFlashColor->offTime = 0;
-    cmdRandomFlashColor->maxOn = 1;
+    // Test cylon
+    printf("Cylon - Red\n\r");
+    cmdCylon = (cylon_t *) commandBuffer;
+    cmdCylon->command = CMD_CYLON;
+    cmdCylon->repeat = 0;
+    cmdCylon->color = RED;
     sendCommand();
-    delay(5000);
+    delay(4000);
+
+    // Test BPM
+    printf("BPM\n\r");
+    cmdBPM = (bpm_t *) commandBuffer;
+    cmdBPM->command = CMD_BPM;
+    sendCommand();
+    delay(4000);
+
+    // Test Juggle
+    printf("Juggle\n\r");
+    cmdJuggle = (juggle_t *) commandBuffer;
+    cmdBPM->command = CMD_JUGGLE;
+    sendCommand();
+    delay(4000);
 
 }
 

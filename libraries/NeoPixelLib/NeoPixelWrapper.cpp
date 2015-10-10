@@ -84,244 +84,72 @@ boolean NeoPixelWrapper::commandDelay(uint32_t time)
 	return cmd;
 }
 
+
+
 /**
- * Fills strip with rainbow pattern
+ * sets a color to write to all pixels
  *
- * @glitter if true, randomly pops white into rainbow pattern
+ * @color - color to set
+ * @show - if true, sets color immediately
  */
-void NeoPixelWrapper::rainbow(uint8_t glitterProbability)
+void NeoPixelWrapper::fill(CRGB color, uint8_t show)
 {
-	while(isCommandAvailable() == false )
-	{
-		// FastLED's built-in rainbow generator
-		fill_rainbow(leds, FastLED.size(), gHue, 7);
-		if (glitterProbability > 0)
-		{
-			if (random8() < glitterProbability)
-			{
-				leds[random16(FastLED.size())] += CRGB::White;
-			}
-
-		}
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-
-		// do some periodic updates
-		EVERY_N_MILLISECONDS(gHueUpdateTime)
-		{
-			gHue++;
-		} // slowly cycle the "base color" through the rainbow
-	}
-
-} // end rainbow
-
-/**
- * Creates random speckles of the specified color.
- */
-void NeoPixelWrapper::confetti(CRGB color)
-{
-	while(isCommandAvailable() == false )
-	{
-		// random colored speckles that blink in and fade smoothly
-		fadeToBlackBy(leds, FastLED.size(), 10);
-		int pos = random16(FastLED.size());
-		if (color == (CRGB)RAINBOW)
-		{
-			leds[pos] += CHSV(gHue + random8(64), 200, 255);
-			// do some periodic updates
-			EVERY_N_MILLISECONDS(gHueUpdateTime)
-			{
-				gHue++;
-			} // cycle the "base color" through the rainbow
-
-		}
-		else
-		{
-			leds[pos] += color;
-		}
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-
-	}
-
-} // end confetti
-
-
-/**
- * Creates random speckles of the specified color.  Nearly the same as
- * confetti but fewer simulateous LEDs
- *
- */
-void NeoPixelWrapper::sparkle(CRGB color, uint8_t sparkles)
-{
-	while(isCommandAvailable() == false )
-	{
-		sparkleCount++;
-		fadeToBlackBy(leds, FastLED.size(), 5);
-		if( sparkleCount > sparkles )
-		{
-			int index = random16(FastLED.size());
-			while( leds[index] != (CRGB)CRGB::Black )
-			{
-				index = random16(FastLED.size());
-			}
-			leds[index] = color;
-			sparkleCount=0;
-		}
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-	}
-}
-
-
-
-/**
- * Creates "cylon" pattern - bright led followed up dimming LEDs back and forth
- *
- */
-void NeoPixelWrapper::cylon(CRGB color)
-{
-	while(isCommandAvailable() == false )
-	{
-		fadeToBlackBy(leds, FastLED.size(), 20);
-		int pos = beatsin16(10, 0, FastLED.size());
-		if (color == (CRGB)RAINBOW)
-		{
-			leds[pos] += CHSV(gHue, 255, 192);
-			// do some periodic updates
-			EVERY_N_MILLISECONDS(gHueUpdateTime)
-			{
-				// slowly cycle the "base color" through the rainbow
-				gHue++;
-			}
-		}
-		else
-		{
-			leds[pos] += color;
-		}
-
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-	}
-} // end cylon
-
-/**
- * No clue how to explain this one...
- *
- */
-void NeoPixelWrapper::bpm()
-{
-	while(isCommandAvailable() == false )
-	{
-		// colored stripes pulsing at a defined Beats-Per-Minute (BPM)
-		uint8_t BeatsPerMinute = 62;
-		CRGBPalette16 palette = PartyColors_p;
-		uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
-		for (int i = 0; i < FastLED.size(); i++)
-		{ //9948
-			leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
-		}
-		// do some periodic updates
-		EVERY_N_MILLISECONDS(gHueUpdateTime)
-		{
-			gHue++;
-		} // slowly cycle the "base color" through the rainbow
-
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-	}
-
+    for (uint8_t i = 0; i < FastLED.size(); i++)
+    {
+        leds[i] = color;
+    }
+    if (show)
+    {
+        FastLED.show();
+    }
 }
 
 /**
- * No clue how to explain this one
+ * Sets strip to specified pattern. 1 = on, 0 = off.
+ * Repeats every 8 bits.
  *
  */
-void NeoPixelWrapper::juggle()
+void NeoPixelWrapper::fillPattern(uint8_t pattern, CRGB onColor, CRGB offColor)
 {
-	while(isCommandAvailable() == false )
-	{
-		// eight colored dots, weaving in and out of sync with each other
-		fadeToBlackBy(leds, FastLED.size(), 20);
-		byte dothue = 0;
-		for (int i = 0; i < 8; i++)
-		{
-			leds[beatsin16(i + 7, 0, FastLED.size())] |= CHSV(dothue, 200, 255);
-			dothue += 32;
-		}
+    uint16_t j;
+    int i;
 
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-	}
+    j = 0;
+
+    for (i = 0; i < FastLED.size(); i++)
+    {
+        if ((pattern >> j) & 0x01)
+        {
+            leds[i] = onColor;
+        }
+        else
+        {
+            leds[i] = offColor;
+        }
+        j = j + 1;
+        if (j == 8)
+        {
+            j = 0;
+        }
+    }
+    FastLED.show();
+
 }
 
-/**
- * This function draws rainbows with an ever-changing,widely-varying set of parameters.
- * https://gist.github.com/kriegsman/964de772d64c502760e5
- *
- */
-void NeoPixelWrapper::fadeRainbow()
-{
 
-	while(isCommandAvailable() == false )
-	{
-
-		static uint16_t sPseudotime = 0;
-		static uint16_t sLastMillis = 0;
-		static uint16_t sHue16 = 0;
-
-		uint8_t sat8 = beatsin88(87, 220, 250);
-		uint8_t brightdepth = beatsin88(341, 96, 224);
-		uint16_t brightnessthetainc16 = beatsin88(203, (25 * 256), (40 * 256));
-		uint8_t msmultiplier = beatsin88(147, 23, 60);
-
-		uint16_t hue16 = sHue16; //gHue * 256;
-		uint16_t hueinc16 = beatsin88(113, 1, 3000);
-
-		uint16_t ms = millis();
-		uint16_t deltams = ms - sLastMillis;
-		sLastMillis = ms;
-		sPseudotime += deltams * msmultiplier;
-		sHue16 += deltams * beatsin88(400, 5, 9);
-		uint16_t brightnesstheta16 = sPseudotime;
-
-		for (uint16_t i = 0; i < (uint16_t) FastLED.size(); i++)
-		{
-			hue16 += hueinc16;
-			uint8_t hue8 = hue16 / 256;
-
-			brightnesstheta16 += brightnessthetainc16;
-			uint16_t b16 = sin16(brightnesstheta16) + 32768;
-
-			uint16_t bri16 = (uint32_t) ((uint32_t) b16 * (uint32_t) b16) / 65536;
-			uint8_t bri8 = (uint32_t) (((uint32_t) bri16) * brightdepth) / 65536;
-			bri8 += (255 - brightdepth);
-
-			CRGB newcolor = CHSV(hue8, sat8, bri8);
-
-			uint16_t pixelnumber = i;
-			pixelnumber = (FastLED.size() - 1) - pixelnumber;
-
-			nblend(leds[pixelnumber], newcolor, 64);
-		}
-
-		FastLED.show();
-		FastLED.delay( frameWaitTime );
-	}
-
-} // end rainbow fade
 
 /**
  * Rotates a pattern across the stripe; onTime determines pause between rotation
  */
-void NeoPixelWrapper::pattern(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime)
+void NeoPixelWrapper::pattern(uint16_t repeat, uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime)
 {
-	uint16_t i;
+	uint16_t i, count;
 
 	i = 0;
+	count = 0;
 	while (isCommandAvailable() == false)
 	{
-		setPattern(pattern, onColor, offColor);
+		fillPattern(pattern, onColor, offColor);
 		if (commandDelay(onTime))
 			break;
 		if (direction == LEFT)
@@ -350,58 +178,97 @@ void NeoPixelWrapper::pattern(uint8_t pattern, uint8_t direction, CRGB onColor, 
 			pattern = pattern >> 1;
 			pattern = pattern | i;
 		}
+
+		count++;
+		if( repeat > 0 && count >= repeat )
+		{
+			break;
+		}
+	} // end while
+}
+
+/**
+ * Turns on LEDs one at time in sequence.  LEFT = 0->n; RIGHT = n -> 0
+ *
+ * @total - number of LEDs to wipe
+ * @direction - left (up) or right (down)
+ * @color - color to fill LEDs with
+ * @waitTime - time to keep LED on
+ * @clearAfter - turn LED off after waiting
+ * @clearBetween - clear string in between repeats
+ */
+void NeoPixelWrapper::wipe(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd)
+{
+	fill(offColor, true);
+	if( direction == LEFT)
+	{
+		for(uint8_t i=0; i<FastLED.size(); i++)
+		{
+			setWipeColor(onColor, i, onTime, offTime, clearAfter);
+			if(isCommandAvailable()) return;
+		}
+	}
+	else if (direction == RIGHT )
+	{
+		for(uint8_t i=FastLED.size(); i>0; i--)
+		{
+			setWipeColor(onColor, i, onTime, offTime, clearAfter);
+			if(isCommandAvailable()) return;
+		}
+	}
+
+	if( clearEnd )
+	{
+		fill(offColor, true);
 	}
 }
 
 /**
- * Flashes random LED with random color
+ *
  */
-void NeoPixelWrapper::randomFlash(uint32_t onTime, uint32_t offTime)
+void NeoPixelWrapper::bounce(uint16_t repeat, uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime, uint8_t clearAfter, uint8_t clearEnd)
 {
-	CRGB color = CHSV(random8(255), 200, 255);
-	while (isCommandAvailable() == false)
-	{
-		randomFlashColor(onTime, offTime, color, CRGB::Black);
-	}
-
-} // randomFlash
-
-/**
- * Flashes random LED with specified color
- */
-void NeoPixelWrapper::randomFlashColor(uint32_t onTime, uint32_t offTime, CRGB onColor, CRGB offColor)
-{
-	uint8_t i;
-
-	writeColor(offColor, true);
+	uint16_t count = 0;
 
 	while (isCommandAvailable() == false)
 	{
-		i = random(FastLED.size());
-		leds[i] = onColor;
-		FastLED.show();
-		if (commandDelay(onTime))
-			return;
-		leds[i] = offColor;
-		if (commandDelay(offTime))
-			return;
-	}
+		if( direction == LEFT )
+		{
+			wipe(pattern, LEFT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
+			if( commandDelay(bounceTime) ) return;
+			wipe(pattern, RIGHT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
+			if(isCommandAvailable()) return;
+			if( commandDelay(bounceTime) ) return;
+		}
+		else if (direction == RIGHT )
+		{
+			wipe(pattern, RIGHT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
+			if( commandDelay(bounceTime) ) return;
+			wipe(pattern, LEFT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
+			if( commandDelay(bounceTime) ) return;
+		}
+		count++;
+		if( repeat > 0 && count > repeat )
+		{
+			break;
+		}
+	} // end while
 
-	writeColor(offColor, true);
+}
 
-} // randomFlash
 
 /**
  * Starts in the middle and works out; or starts in the end and works in
  */
-void NeoPixelWrapper::middle(uint8_t direction, CRGB color1, CRGB color2, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd)
+void NeoPixelWrapper::middle(uint16_t repeat, uint8_t direction, CRGB color1, CRGB color2, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd)
 {
+	uint16_t count = 0;
 	uint8_t numPixels = FastLED.size();
 	uint8_t halfNumPixels = numPixels/2;
 
 	if(clearEnd)
 	{
-		writeColor(color2, true);
+		fill(color2, true);
 	}
 	while (isCommandAvailable() == false)
 	{
@@ -443,103 +310,287 @@ void NeoPixelWrapper::middle(uint8_t direction, CRGB color1, CRGB color2, uint32
 		}
 		if(clearEnd)
 		{
-			writeColor(color2, true);
+			fill(color2, true);
 		}
-	}
+
+		count++;
+		if( repeat > 0 && count > repeat )
+		{
+			break;
+		}
+
+	} // end while
 }
 
-
-
 /**
- *
+ * Flashes random LED with specified color
  */
-void NeoPixelWrapper::colorBounce(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime, uint8_t clearAfter, uint8_t clearEnd)
+void NeoPixelWrapper::randomFlash(uint32_t runTime, uint32_t onTime, uint32_t offTime, CRGB onColor, CRGB offColor)
 {
+	uint8_t i;
+
+	fill(offColor, true);
+
 	while (isCommandAvailable() == false)
 	{
-		if( direction == LEFT )
-		{
-			colorWipe(pattern, LEFT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
-			if(isCommandAvailable()) return;
-			if( commandDelay(bounceTime) ) return;
-			colorWipe(pattern, RIGHT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
-			if(isCommandAvailable()) return;
-			if( commandDelay(bounceTime) ) return;
-		}
-		else if (direction == RIGHT )
-		{
-			colorWipe(pattern, RIGHT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
-			if(isCommandAvailable()) return;
-			if( commandDelay(bounceTime) ) return;
-			colorWipe(pattern, LEFT, onColor, offColor, onTime, offTime, clearAfter, clearEnd);
-			if(isCommandAvailable()) return;
-			if( commandDelay(bounceTime) ) return;
-		}
+		i = random(FastLED.size());
+		leds[i] = onColor;
+		FastLED.show();
+		if (commandDelay(onTime))
+			return;
+		leds[i] = offColor;
+		if (commandDelay(offTime))
+			return;
 	}
-}
+
+	fill(offColor, true);
+
+} // randomFlash
+
+/**
+ * Fills strip with rainbow pattern
+ *
+ * @glitter if true, randomly pops white into rainbow pattern
+ */
+void NeoPixelWrapper::rainbow(uint32_t runTime, uint8_t glitterProbability, CRGB glitterColor)
+{
+    while(isCommandAvailable() == false )
+    {
+        // FastLED's built-in rainbow generator
+        fill_rainbow(leds, FastLED.size(), gHue, 7);
+        if (glitterProbability > 0)
+        {
+            if (random8() < glitterProbability)
+            {
+                leds[random16(FastLED.size())] += glitterColor;
+            }
+
+        }
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+
+        // do some periodic updates
+        EVERY_N_MILLISECONDS(gHueUpdateTime)
+        {
+            gHue++;
+        } // slowly cycle the "base color" through the rainbow
+    }
+
+} // end rainbow
+
+/**
+ * This function draws rainbows with an ever-changing,widely-varying set of parameters.
+ * https://gist.github.com/kriegsman/964de772d64c502760e5
+ *
+ */
+void NeoPixelWrapper::rainbowFade(uint32_t runTime)
+{
+
+    while(isCommandAvailable() == false )
+    {
+
+        static uint16_t sPseudotime = 0;
+        static uint16_t sLastMillis = 0;
+        static uint16_t sHue16 = 0;
+
+        uint8_t sat8 = beatsin88(87, 220, 250);
+        uint8_t brightdepth = beatsin88(341, 96, 224);
+        uint16_t brightnessthetainc16 = beatsin88(203, (25 * 256), (40 * 256));
+        uint8_t msmultiplier = beatsin88(147, 23, 60);
+
+        uint16_t hue16 = sHue16; //gHue * 256;
+        uint16_t hueinc16 = beatsin88(113, 1, 3000);
+
+        uint16_t ms = millis();
+        uint16_t deltams = ms - sLastMillis;
+        sLastMillis = ms;
+        sPseudotime += deltams * msmultiplier;
+        sHue16 += deltams * beatsin88(400, 5, 9);
+        uint16_t brightnesstheta16 = sPseudotime;
+
+        for (uint16_t i = 0; i < (uint16_t) FastLED.size(); i++)
+        {
+            hue16 += hueinc16;
+            uint8_t hue8 = hue16 / 256;
+
+            brightnesstheta16 += brightnessthetainc16;
+            uint16_t b16 = sin16(brightnesstheta16) + 32768;
+
+            uint16_t bri16 = (uint32_t) ((uint32_t) b16 * (uint32_t) b16) / 65536;
+            uint8_t bri8 = (uint32_t) (((uint32_t) bri16) * brightdepth) / 65536;
+            bri8 += (255 - brightdepth);
+
+            CRGB newcolor = CHSV(hue8, sat8, bri8);
+
+            uint16_t pixelnumber = i;
+            pixelnumber = (FastLED.size() - 1) - pixelnumber;
+
+            nblend(leds[pixelnumber], newcolor, 64);
+        }
+
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+    }
+
+} // end rainbow fade
 
 
 /**
+ * Creates random speckles of the specified color.
+ *
+ * 5-10 LEDs makes a nice effect
  *
  */
-void NeoPixelWrapper::outAndBack(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime)
+void NeoPixelWrapper::confetti(uint32_t runTime, CRGB color, uint8_t numLeds)
 {
-	while (isCommandAvailable() == false)
-	{
-		if( direction == LEFT )
-		{
-			colorWipe(pattern, LEFT, onColor, offColor, onTime, offTime, false, false);
-			if( commandDelay(bounceTime) ) return;
-			colorWipe(pattern, RIGHT, offColor, onColor, onTime, offTime, false, false);
-			if( commandDelay(bounceTime) ) return;
-		}
-		else if (direction == RIGHT )
-		{
-			colorWipe(pattern, RIGHT, onColor, offColor, onTime, offTime, false, false);
-			if( commandDelay(bounceTime) ) return;
-			colorWipe(pattern, LEFT, offColor, onColor, onTime, offTime, false, false);
-			if( commandDelay(bounceTime) ) return;
-		}
-	}
-}
+    while(isCommandAvailable() == false )
+    {
+        // random colored speckles that blink in and fade smoothly
+        fadeToBlackBy(leds, FastLED.size(), numLeds);
+        int pos = random16(FastLED.size());
+        if (color == (CRGB)RAINBOW)
+        {
+            leds[pos] += CHSV(gHue + random8(64), 200, 255);
+            // do some periodic updates
+            EVERY_N_MILLISECONDS(gHueUpdateTime)
+            {
+                gHue++;
+            } // cycle the "base color" through the rainbow
+
+        }
+        else
+        {
+            leds[pos] += color;
+        }
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+
+    }
+
+} // end confetti
+
+
+///**
+// * Creates random speckles of the specified color.  Nearly the same as
+// * confetti but fewer simulateous LEDs
+// *
+// */
+//void NeoPixelWrapper::sparkle(CRGB color, uint8_t sparkles)
+//{
+//  while(isCommandAvailable() == false )
+//  {
+//      sparkleCount++;
+//      fadeToBlackBy(leds, FastLED.size(), 5);
+//      if( sparkleCount > sparkles )
+//      {
+//          int index = random16(FastLED.size());
+//          while( leds[index] != (CRGB)CRGB::Black )
+//          {
+//              index = random16(FastLED.size());
+//          }
+//          leds[index] = color;
+//          sparkleCount=0;
+//      }
+//      FastLED.show();
+//      FastLED.delay( frameWaitTime );
+//  }
+//}
 
 
 
 /**
- * Turns on LEDs one at time in sequence.  LEFT = 0->n; RIGHT = n -> 0
+ * Creates "cylon" pattern - bright led followed up dimming LEDs back and forth
  *
- * @total - number of LEDs to wipe
- * @direction - left (up) or right (down)
- * @color - color to fill LEDs with
- * @waitTime - time to keep LED on
- * @clearAfter - turn LED off after waiting
- * @clearBetween - clear string in between repeats
  */
-void NeoPixelWrapper::colorWipe(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd)
+void NeoPixelWrapper::cylon(uint16_t repeat, CRGB color)
 {
-	writeColor(offColor, true);
-	if( direction == LEFT)
-	{
-		for(uint8_t i=0; i<FastLED.size(); i++)
-		{
-			setWipeColor(onColor, i, onTime, offTime, clearAfter);
-			if(isCommandAvailable()) return;
-		}
-	}
-	else if (direction == RIGHT )
-	{
-		for(uint8_t i=FastLED.size(); i>0; i--)
-		{
-			setWipeColor(onColor, i, onTime, offTime, clearAfter);
-			if(isCommandAvailable()) return;
-		}
-	}
+	uint16_t count = 0;
+	repeat = FastLED.size()*repeat;
 
-	if( clearEnd )
-	{
-		writeColor(offColor, true);
-	}
+    while(isCommandAvailable() == false )
+    {
+        fadeToBlackBy(leds, FastLED.size(), 20);
+        int pos = beatsin16(10, 0, FastLED.size());
+        if (color == (CRGB)RAINBOW)
+        {
+            leds[pos] += CHSV(gHue, 255, 192);
+            // do some periodic updates
+            EVERY_N_MILLISECONDS(gHueUpdateTime)
+            {
+                // slowly cycle the "base color" through the rainbow
+                gHue++;
+            }
+        }
+        else
+        {
+            leds[pos] += color;
+        }
+
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+
+		count++;
+		if( repeat > 0 && count > repeat )
+		{
+			break;
+		}
+
+    }
+} // end cylon
+
+/**
+ * No clue how to explain this one...
+ *
+ */
+void NeoPixelWrapper::bpm(uint32_t runTime)
+{
+    while(isCommandAvailable() == false )
+    {
+        // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
+        uint8_t BeatsPerMinute = 62;
+        CRGBPalette16 palette = PartyColors_p;
+        uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
+        for (int i = 0; i < FastLED.size(); i++)
+        { //9948
+            leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
+        }
+        // do some periodic updates
+        EVERY_N_MILLISECONDS(gHueUpdateTime)
+        {
+            gHue++;
+        } // slowly cycle the "base color" through the rainbow
+
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+    }
+
 }
+
+/**
+ * No clue how to explain this one
+ *
+ */
+void NeoPixelWrapper::juggle(uint32_t runTime)
+{
+    while(isCommandAvailable() == false )
+    {
+        // eight colored dots, weaving in and out of sync with each other
+        fadeToBlackBy(leds, FastLED.size(), 20);
+        byte dothue = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            leds[beatsin16(i + 7, 0, FastLED.size())] |= CHSV(dothue, 200, 255);
+            dothue += 32;
+        }
+
+        FastLED.show();
+        FastLED.delay( frameWaitTime );
+    }
+}
+
+////////////////////////////////////////
+// BEGIN PRIVATE FUNCTIONS
+////////////////////////////////////////
 
 /**
  * Sets the color of the specified LED for onTime time.  If clearAfter
@@ -547,84 +598,17 @@ void NeoPixelWrapper::colorWipe(uint8_t pattern, uint8_t direction, CRGB onColor
  */
 void NeoPixelWrapper::setWipeColor(CRGB newColor, uint16_t index, uint32_t onTime, uint32_t offTime, uint8_t clearAfter)
 {
-	uint32_t curColor;
+    uint32_t curColor;
 
-	curColor = leds[index];
-	leds[index] = newColor;
-	FastLED.show();
-	commandDelay(onTime);
-	if(clearAfter == true)
-	{
-		leds[index] = curColor;
-		FastLED.show();
-		commandDelay(offTime);
-	}
-
-}
-
-/**
- * sets a color to write to all pixels
- *
- * @color - color to set
- * @show - if true, sets color immediately
- */
-void NeoPixelWrapper::writeColor(CRGB color, uint8_t show)
-{
-	for (uint8_t i = 0; i < FastLED.size(); i++)
-	{
-		leds[i] = color;
-	}
-	if (show)
-	{
-		FastLED.show();
-	}
-}
-
-///**
-// * Input a value 0-255 and get a RGB color back
-// */
-//uint32_t NeoPixelWrapper::Wheel(byte WheelPos)
-//{
-//	if(WheelPos < 85) {
-//		return pixels.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-//	} else if(WheelPos < 170) {
-//		WheelPos -= 85;
-//		return pixels.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-//	} else {
-//		WheelPos -= 170;
-//		return pixels.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-//	}
-//}
-//
-
-/**
- * Sets strip to specified pattern. Binary 1 = on, Binary 0 = off.
- * Repeats every 8 bits.
- *
- */
-void NeoPixelWrapper::setPattern(uint8_t pattern, CRGB onColor, CRGB offColor)
-{
-	uint16_t j;
-	int i;
-
-	j = 0;
-
-	for (i = 0; i < FastLED.size(); i++)
-	{
-		if ((pattern >> j) & 0x01)
-		{
-			leds[i] = onColor;
-		}
-		else
-		{
-			leds[i] = offColor;
-		}
-		j = j + 1;
-		if (j == 8)
-		{
-			j = 0;
-		}
-	}
-	FastLED.show();
+    curColor = leds[index];
+    leds[index] = newColor;
+    FastLED.show();
+    commandDelay(onTime);
+    if(clearAfter == true)
+    {
+        leds[index] = curColor;
+        FastLED.show();
+        commandDelay(offTime);
+    }
 
 }

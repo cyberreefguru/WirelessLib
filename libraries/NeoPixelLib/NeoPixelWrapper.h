@@ -12,7 +12,7 @@
 #include "NeoPixelLib.h"
 #include <FastLed.h>
 
-#define LED_PIN		2
+#define LED_PIN		3
 
 #define WHITE	CRGB::White
 #define BLACK	CRGB::Black
@@ -34,33 +34,27 @@ public:
 	void setFramesPerSecond(uint8_t fps);
 	void setHueUpdateTime(uint8_t updateTime);
 
+    void fill(CRGB color, uint8_t show);
+    void fillPattern(uint8_t pattern, CRGB onColor, CRGB offColor);
 
-	void rainbow(uint8_t glitterProbability);
-	void confetti(CRGB color);
-	void sparkle(CRGB color, uint8_t sparkles);
-	void cylon(CRGB color);
-	void bpm();
-	void juggle();
-	void fadeRainbow();
+    void pattern(uint16_t repeat, uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime);
+    void wipe(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd);
+    void bounce(uint16_t repeat, uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime, uint8_t clearAfter, uint8_t clearEnd);
+    void middle(uint16_t repeat, uint8_t direction, CRGB color1, CRGB color2, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd);
+    void randomFlash(uint32_t runTime, uint32_t onTime, uint32_t offTime, CRGB onColor, CRGB offColor);
+    void rainbow(uint32_t runTime,uint8_t glitterProbability, CRGB glitterColor);
+    void rainbowFade(uint32_t runTime);
 
-	void setPattern(uint8_t pattern, CRGB onColor, CRGB offColor);
-
-	void pattern(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime);
-	void rainbowFadeStrip(uint32_t fadeTime);
-	void rainbowFadeOne(uint32_t fadeTime);
-	void randomFlash(uint32_t onTime, uint32_t offTime);
-	void randomFlashColor(uint32_t onTime, uint32_t offTime, CRGB onColor, CRGB offColor);
-	void middle(uint8_t direction, CRGB color1, CRGB color2, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd);
-	void colorBounce(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime, uint8_t clearAfter, uint8_t clearEnd);
-	void outAndBack(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint32_t bounceTime);
-	void colorWipe(uint8_t pattern, uint8_t direction, CRGB onColor, CRGB offColor, uint32_t onTime, uint32_t offTime, uint8_t clearAfter, uint8_t clearEnd);
+	void confetti(uint32_t runTime,CRGB color, uint8_t numOn);
+	void cylon(uint16_t repeat, CRGB color);
+	void bpm(uint32_t runTime);
+	void juggle(uint32_t runTime);
 
 	boolean commandDelay(uint32_t waitTime);
 
 protected:
 	CRGB *leds;
 	void setWipeColor(CRGB newColor, uint16_t index, uint32_t onTime, uint32_t offTime, uint8_t clearAfter);
-	void writeColor(CRGB color, uint8_t show);
 
 
 };
