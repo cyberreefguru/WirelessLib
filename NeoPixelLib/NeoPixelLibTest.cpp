@@ -7,7 +7,6 @@
 
 #include "NeoPixelLibTest.h"
 
-
 #ifdef __TEST
 
 NeoPixelWrapper controller = NeoPixelWrapper();
@@ -16,7 +15,6 @@ uint8_t gPattern = 18;
 
 volatile uint32_t endTime;
 void commandDelay(uint32_t time);
-
 
 void setup()
 {
@@ -27,13 +25,6 @@ void setup()
 	}
 
 }
-
-void loop()
-{
-	test();
-}
-
-
 void test()
 {
 	endTime = millis()+10000;
@@ -104,6 +95,11 @@ void test()
 
 }
 
+
+void loop()
+{
+	test();
+}
 
 void commandDelay(uint32_t time)
 {

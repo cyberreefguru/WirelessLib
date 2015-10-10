@@ -13,6 +13,7 @@
 #include "RF24.h"
 #include "printf.h"
 #include "NeoWirelessLib.h"
+#include "NeoPixelWrapper.h"
 
 
 //Do not add code below this line

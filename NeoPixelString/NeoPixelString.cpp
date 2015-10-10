@@ -2,7 +2,7 @@
 //#include "RGB.h"
 
 
-#define NUM_PIXELS 50
+#define NUM_PIXELS 100
 #define HALF NUM_PIXELS/2
 #define PIN 2
 #define DOWN 	0
@@ -253,9 +253,17 @@ void loop()
 
 	clear();
 
-//	rainbowFadeStrip(2000, 25);
-//
-//	rainbowFadeOne(2000, 25);
+	for(i=0; i<5; i++)
+	{
+		fade(UP, 10, WHITE );
+		fade(DOWN, 10, WHITE);
+	}
+
+	pixels.setBrightness(255);
+
+	rainbowFadeStrip(5000, 25);
+
+	rainbowFadeOne(5000, 25);
 
 	colorBounce(6, LEFT, RED, BLUE, 25, false);
 	clear();

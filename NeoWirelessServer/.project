@@ -27,6 +27,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Libraries/FastLED</name>
+			<type>2</type>
+			<locationURI>ArduinoPrivateLibPath/FastLED</locationURI>
+		</link>
+		<link>
+			<name>Libraries/NeoPixelLib</name>
+			<type>2</type>
+			<locationURI>ArduinoPrivateLibPath/NeoPixelLib</locationURI>
+		</link>
+		<link>
 			<name>Libraries/NeoWirelessLib</name>
 			<type>2</type>
 			<locationURI>ArduinoPrivateLibPath/NeoWirelessLib</locationURI>

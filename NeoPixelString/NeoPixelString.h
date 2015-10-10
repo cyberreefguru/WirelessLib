@@ -20,6 +20,9 @@
 #define YELLOW	RED | GREEN
 #define ORANGE	0xFF3300
 #define PURPLE	0x990099
+#define BLACK	0x000000
+#define WHITE	0xffffff
+
 
 
 //end of add your includes here

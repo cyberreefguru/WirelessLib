@@ -9,16 +9,10 @@
 #define NEOPIXELWRAPPER_H_
 
 #include <Arduino.h>
+#include "NeoPixelLib.h"
 #include <FastLed.h>
 
 #define LED_PIN		2
-
-#define DOWN 	0
-#define UP		1
-#define RIGHT	0
-#define LEFT	1
-#define IN		0
-#define OUT		1
 
 #define WHITE	CRGB::White
 #define BLACK	CRGB::Black

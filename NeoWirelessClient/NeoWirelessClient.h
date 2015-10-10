@@ -12,7 +12,9 @@
 #include "RF24.h"
 #include "printf.h"
 #include "NeoWirelessLib.h"
-#include <Adafruit_NeoPixel.h>
+#include "NeoPixelWrapper.h"
+
+//#include <Adafruit_NeoPixel.h>
 
 
 #define NUM_PIXELS 50
