@@ -18,8 +18,9 @@ boolean isCommandAvailable();
 RF24 radio(7, 8); // ce=7, cs=8
 
 // Set address for channels
-byte address[][5] =
-		{ 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE };
+byte addresses[][6] = {"1node", "2node", "3node", "4node", "5node", "6node" };
+//byte addresses[][5] =
+//		{ 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE };
 
 static uint32_t message_count = 0;
 static uint32_t message_good = 0;
@@ -41,8 +42,8 @@ void setup() {
 	radio.enableAckPayload(); // enable payload ack
 	radio.enableDynamicPayloads(); // Ack payloads are dynamic payloads
 
-	radio.openWritingPipe(address[1]);
-	radio.openReadingPipe(1, address[0]);
+//	radio.openWritingPipe(addresses[1]);
+	radio.openReadingPipe(1, addresses[1]);
 	radio.startListening(); // we're the client, so start listening
 	radio.writeAckPayload(1, &message_count, sizeof(message_count));
 	++message_count;

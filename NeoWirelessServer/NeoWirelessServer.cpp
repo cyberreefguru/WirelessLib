@@ -14,8 +14,9 @@ void check_radio(void);
 RF24 radio(7, 8); // ce=7, cs=8
 
 // Set address for channels
-byte address[][5] =
-{ 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE };
+byte addresses[][6] = {"1node", "2node", "3node", "4node", "5node", "6node" };
+
+#define NUM_NODES	2
 
 static uint32_t message_count = 0;
 static uint32_t message_good = 0;
@@ -23,6 +24,8 @@ static uint32_t message_fail = 0;
 static uint8_t commandBuffer[MAX_COMMAND_SIZE];
 
 uint8_t sendCommand();
+uint8_t sendCommand(uint8_t channel);
+
 void test();
 
 /**
@@ -40,13 +43,11 @@ void setup()
     radio.enableAckPayload(); // enable payload ack
     radio.enableDynamicPayloads(); // Ack payloads are dynamic payloads
 
-    radio.openWritingPipe(address[0]);
-    radio.openReadingPipe(1, address[1]);
+//    radio.openWritingPipe(addresses[0]);
+//    radio.openReadingPipe(1, addresses[1]);
     radio.printDetails();
     delay(50);
-    attachInterrupt(0, check_radio, LOW); // Attach interrupt handler to interrupt #0 (using pin 2) on BOTH the sender and receiver
-
-    randomSeed(analogRead(0));              //Seed for random number generation
+//    attachInterrupt(0, check_radio, LOW); // Attach interrupt handler to interrupt #0 (using pin 2) on BOTH the sender and receiver
 
     for (int i = 0; i < MAX_COMMAND_SIZE; i++)
     {
@@ -72,15 +73,17 @@ void loop()
  */void test()
 {
      // Test fill
-     printf("Fill\n\r");
+     printf("Fill-White\n\r");
      cmdFill = (fill_t *)commandBuffer;
      cmdFill->command = CMD_FILL;
      cmdFill->color = WHITE;
      sendCommand();
      delay(4000);
+     printf("Fill-Red\n\r");
      cmdFill->color = RED;
      sendCommand();
      delay(4000);
+     printf("Fill-Black\n\r");
      cmdFill->color = BLACK;
      sendCommand();
      delay(4000);
@@ -287,15 +290,48 @@ uint8_t sendCommand()
 {
     uint8_t flag = false;
 
-    flag = radio.writeFast(commandBuffer, MAX_COMMAND_SIZE);
-    if (!flag)
+    for(uint8_t i=0; i < NUM_NODES; i++ )
     {
-        printf("Error sending Command: %d\n\r", commandBuffer[0]);
-        message_fail++;
+    	flag = sendCommand(i);
     }
+//    flag = radio.writeFast(commandBuffer, MAX_COMMAND_SIZE);
+//    if (!flag)
+//    {
+//        printf("Error sending Command: %d\n\r", commandBuffer[0]);
+//        message_fail++;
+//    }
+
 
     return flag;
 }
+
+
+uint8_t sendCommand(uint8_t channel)
+{
+	uint8_t flag = false;
+
+    radio.openWritingPipe(addresses[channel]);
+    flag = radio.write( commandBuffer, MAX_COMMAND_SIZE );
+    if( flag == true )
+    {
+    	if( radio.available() )
+    	{
+            radio.read(&message_count, sizeof(message_count));
+            printf("Ack Command 0x%02x from Node %d: %lu\n\r", commandBuffer[0], channel, message_count);
+    	}
+    	else
+    	{
+    		flag = false;
+			printf("Error getting ACK Command 0x%02x from Node %d.\n\r", commandBuffer[0], channel);
+    	}
+    }
+    else
+    {
+			printf("Error sending Command 0x%02x to Node %d.\n\r", commandBuffer[0], channel);
+    }
+	return flag;
+}
+
 
 /**
  *
