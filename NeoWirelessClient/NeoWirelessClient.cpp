@@ -13,12 +13,14 @@ NeoPixelWrapper controller = NeoPixelWrapper();
 volatile uint32_t endTime;
 
 boolean isCommandAvailable();
+void commandMode();
 
 // Hardware configuration
 RF24 radio(7, 8); // ce=7, cs=8
 
 // Set address for channels
-byte addresses[][6] = {"1node", "2node", "3node", "4node", "5node", "6node" };
+byte addresses[][6] =
+{ "1node", "2node", "3node", "4node", "5node", "6node" };
 //byte addresses[][5] =
 //		{ 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE };
 
@@ -31,7 +33,8 @@ static volatile uint8_t commandBuffer[MAX_COMMAND_SIZE];
 /**
  *
  */
-void setup() {
+void setup()
+{
 
 	Serial.begin(115200);
 	printf_begin();
@@ -51,7 +54,7 @@ void setup() {
 	delay(50);
 	attachInterrupt(0, check_radio, LOW); // Attach interrupt handler to interrupt #0 (using pin 2) on BOTH the sender and receiver
 
-	if( controller.initialize(50, 2) == false )
+	if (controller.initialize(50, 2) == false)
 	{
 
 	}
@@ -65,7 +68,8 @@ void setup() {
 /**
  *
  */
-void loop() {
+void loop()
+{
 
 	// Wait for command
 	if (commandAvailable)
@@ -74,42 +78,92 @@ void loop() {
 
 	} // end commandAvailable
 
+	if( Serial.available() )
+	{
+		commandMode();
+	}
+
 } // end loop
+
+void commandMode()
+{
+	uint8_t nodeid[2];
+	int id = 0;
+
+	// Read first character - discard since it just gets us into command mode
+	char c = toupper(Serial.read());
+	Serial.println(F("COMMAND MODE:"));
+	Serial.println(F("C - Change Node ID"));
+	Serial.println(F("D - Dump Configuration"));
+	Serial.println(F("E - exit"));
+	while(!Serial.available() ){}
+
+	c = toupper(Serial.read());
+	switch( c )
+	{
+	case 'C':
+		Serial.print(F("Enter 2 digit node ID: "));
+		while(!Serial.available() ){}
+		nodeid[0] = Serial.read();
+		Serial.print( (char)nodeid[0] );
+		while(!Serial.available() ){}
+		nodeid[1] = Serial.read();
+		Serial.println( (char)nodeid[1] );
+		Serial.println(F("Processing..."));
+		id = atoi((char *)nodeid);
+		if( id >= 0 && id <= 10 )
+		{
+			// set node id
+			Serial.print(F("Node ID accepted: "));
+			Serial.println( id, HEX);
+		}
+		break;
+	case 'D':
+		break;
+	case 'E':
+		break;
+	}
+}
 
 /**
  * Handles interrupts from the radio
  *
  *
  */
-void check_radio(void) {
+void check_radio(void)
+{
 
 	bool tx, fail, rx;
 
 	// What happened?
 	radio.whatHappened(tx, fail, rx);
 
-	if (tx) {
+	if (tx)
+	{
 		// Have we successfully transmitted?
 		message_good++;
 //		printf("Ack Payload:Sent\n\r");
 	}
 
-	if (fail) {
+	if (fail)
+	{
 		// Have we failed to transmit?
 		message_fail++;
 //		printf("Ack Payload:Failed\n\r");
 	}
 
 	// Did we receive a message?
-	if (rx || radio.available()) {
+	if (rx || radio.available())
+	{
 
 		// get payload and store in buffer; set command flag
-	     while(radio.available()){
-	      radio.read((void *)commandBuffer,MAX_COMMAND_SIZE);
-	     }
-	     radio.writeAckPayload(1, &message_count, sizeof(message_count));
-	     ++message_count;
-	     commandAvailable = true;
+		while (radio.available())
+		{
+			radio.read((void *) commandBuffer, MAX_COMMAND_SIZE);
+		}
+		radio.writeAckPayload(1, &message_count, sizeof(message_count));
+		++message_count;
+		commandAvailable = true;
 	}
 }
 
@@ -117,82 +171,83 @@ void parseCommand()
 {
 	commandAvailable = false;
 	printf("COMMAND RECEIVED: 0x%02x - ", commandBuffer[0]);
-	switch (commandBuffer[0]) {
+	switch (commandBuffer[0])
+	{
 
 	case CMD_FILL:
 		printf("FILL\n\r");
-		cmdFill = (fill_t *)commandBuffer;
-		controller.fill( cmdFill->color, true );
+		cmdFill = (fill_t *) commandBuffer;
+		controller.fill(cmdFill->color, true);
 		break;
 	case CMD_FILL_PATTERN:
 		printf("FILL_PATTERN\n\r");
-		cmdFillPattern = (fill_pattern_t *)commandBuffer;
-		controller.fillPattern( cmdFillPattern->pattern, cmdFillPattern->onColor, cmdFillPattern->offColor);
+		cmdFillPattern = (fill_pattern_t *) commandBuffer;
+		controller.fillPattern(cmdFillPattern->pattern, cmdFillPattern->onColor, cmdFillPattern->offColor);
 		break;
 	case CMD_PATTERN:
 		printf("PATTERN\n\r");
-		cmdPattern = (pattern_t *)commandBuffer;
+		cmdPattern = (pattern_t *) commandBuffer;
 		controller.pattern(cmdPattern->repeat, cmdPattern->pattern, cmdPattern->direction, cmdPattern->onColor, cmdPattern->offColor, cmdPattern->onTime, cmdPattern->offTime);
 		break;
 	case CMD_WIPE:
 		printf("WIPE\n\r");
-		cmdWipe= (wipe_t *)commandBuffer;
+		cmdWipe = (wipe_t *) commandBuffer;
 		controller.wipe(cmdWipe->pattern, cmdWipe->direction, cmdWipe->onColor, cmdWipe->offColor, cmdWipe->onTime, cmdWipe->offTime, cmdWipe->clearAfter, cmdWipe->clearEnd);
 		break;
 	case CMD_BOUNCE:
 		printf("BOUNCE\n\r");
-		cmdBounce = (bounce_t *)commandBuffer;
+		cmdBounce = (bounce_t *) commandBuffer;
 		controller.bounce(cmdBounce->repeat, cmdBounce->pattern, cmdBounce->direction, cmdBounce->onColor, cmdBounce->offColor, cmdBounce->onTime, cmdBounce->offTime, cmdBounce->bounceTime, cmdBounce->clearAfter, cmdBounce->clearEnd);
 		break;
 	case CMD_MIDDLE:
 		printf("MIDDLE\n\r");
-		cmdMiddle = (middle_t *)commandBuffer;
+		cmdMiddle = (middle_t *) commandBuffer;
 		controller.middle(cmdMiddle->repeat, cmdMiddle->direction, cmdMiddle->onColor, cmdMiddle->offColor, cmdMiddle->onTime, cmdMiddle->offTime, cmdMiddle->clearAfter, cmdMiddle->clearEnd);
 		break;
 	case CMD_RANDOM_FLASH:
 		printf("RANDOM_FLASH\n\r");
-		cmdRandomFlash = (random_flash_t *)commandBuffer;
-		controller.randomFlash( 0, cmdRandomFlash->onTime, cmdRandomFlash->offTime, cmdRandomFlash->onColor, cmdRandomFlash->offColor );
+		cmdRandomFlash = (random_flash_t *) commandBuffer;
+		controller.randomFlash(0, cmdRandomFlash->onTime, cmdRandomFlash->offTime, cmdRandomFlash->onColor, cmdRandomFlash->offColor);
 		break;
 	case CMD_RAINBOW:
 		printf("RAINBOW\n\r");
-		cmdRainbow = (rainbow_t *)commandBuffer;
-		controller.rainbow( 0, cmdRainbow->glitterProbability, cmdRainbow->glitterColor );
+		cmdRainbow = (rainbow_t *) commandBuffer;
+		controller.rainbow(0, cmdRainbow->glitterProbability, cmdRainbow->glitterColor);
 		break;
 	case CMD_RAINBOW_FADE:
 		printf("RAINBOW_FADE\n\r");
-		cmdRainbowFade = (rainbow_fade_t *)commandBuffer;
+		cmdRainbowFade = (rainbow_fade_t *) commandBuffer;
 		controller.rainbowFade(0);
 		break;
 	case CMD_CONFETTI:
 		printf("CONFETTI\n\r");
-		cmdConfetti = (confetti_t *)commandBuffer;
-		controller.confetti( 0, cmdConfetti->color, cmdConfetti->numOn );
+		cmdConfetti = (confetti_t *) commandBuffer;
+		controller.confetti(0, cmdConfetti->color, cmdConfetti->numOn);
 		break;
 	case CMD_CYLON:
 		printf("CYLON\n\r");
-		cmdCylon = (cylon_t *)commandBuffer;
-		controller.cylon( cmdCylon->repeat, cmdCylon->color);
+		cmdCylon = (cylon_t *) commandBuffer;
+		controller.cylon(cmdCylon->repeat, cmdCylon->color);
 		break;
 	case CMD_BPM:
 		printf("BPM\n\r");
-		cmdBPM = (bpm_t *)commandBuffer;
+		cmdBPM = (bpm_t *) commandBuffer;
 		controller.bpm(0);
 		break;
 	case CMD_JUGGLE:
 		printf("JUGGLE\n\r");
-		cmdJuggle = (juggle_t *)commandBuffer;
+		cmdJuggle = (juggle_t *) commandBuffer;
 		controller.juggle(0);
 		break;
 	case CMD_SET_HUE_UPDATE_TIME:
 		printf("SET_HUE_UPDATE_TIME\n\r");
-		cmdSetHueUpdateTime = (set_hue_update_time_t *)commandBuffer;
-		controller.setHueUpdateTime( cmdSetHueUpdateTime->updateTime);
+		cmdSetHueUpdateTime = (set_hue_update_time_t *) commandBuffer;
+		controller.setHueUpdateTime(cmdSetHueUpdateTime->updateTime);
 		break;
 	case CMD_SET_FPS:
 		printf("SET_FPS\n\r");
-		cmdSetFPS = (set_fps_t *)commandBuffer;
-		controller.setFramesPerSecond( cmdSetFPS->fps);
+		cmdSetFPS = (set_fps_t *) commandBuffer;
+		controller.setFramesPerSecond(cmdSetFPS->fps);
 		break;
 	case CMD_ERROR:
 	default:
