@@ -7,28 +7,29 @@
  */
 #include "NeoWirelessClient.h"
 
+void commandMode();
 void check_radio(void);
 void parseCommand();
+void setNodeId(uint8_t id);
+
 NeoPixelWrapper controller = NeoPixelWrapper();
 volatile uint32_t endTime;
 
 boolean isCommandAvailable();
-void commandMode();
 
 // Hardware configuration
 RF24 radio(7, 8); // ce=7, cs=8
 
 // Set address for channels
-byte addresses[][6] =
-{ "1node", "2node", "3node", "4node", "5node", "6node" };
-//byte addresses[][5] =
-//		{ 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE, 0xCC, 0xCE };
+byte addresses[][6] = { "1node" };
 
 static uint32_t message_count = 0;
 static uint32_t message_good = 0;
 static uint32_t message_fail = 0;
 static volatile uint8_t commandAvailable = false;
 static volatile uint8_t commandBuffer[MAX_COMMAND_SIZE];
+
+client_configuration_t clientConfig;
 
 /**
  *
@@ -38,16 +39,38 @@ void setup()
 
 	Serial.begin(115200);
 	printf_begin();
-	printf("\n\rNeoPixelWirelessClient\n\r");
+	Serial.println(F("\n\n** NeoPixelWirelessClient ** \n\n"));
+
+	Serial.println(F("Reading client configuration...."));
+	if( !readClientConfiguration( (client_configuration_t *)&clientConfig) )
+	{
+		Serial.println(F("** Error reading client configuration\n"));
+		clientConfig.version = CLIENT_CONFIG_V10;
+		clientConfig.nodeId = 0x01;
+		if( !writeClientConfiguration((client_configuration_t *)&clientConfig) )
+		{
+			Serial.println(F("** Error writing client configuration\n"));
+		}
+		else
+		{
+			Serial.println(F("Successfully wrote client configuration\n"));
+		}
+	}
+	else
+	{
+		Serial.println(F("Successfully Read Configuration:\n"));
+	}
+	dumpClientConfiguration((client_configuration_t *)&clientConfig);
 
 	// Setup and configure radio
 	radio.begin();
 	radio.enableAckPayload(); // enable payload ack
 	radio.enableDynamicPayloads(); // Ack payloads are dynamic payloads
 
+	setNodeId(clientConfig.nodeId);
 //	radio.openWritingPipe(addresses[1]);
-	radio.openReadingPipe(1, addresses[1]);
-	radio.startListening(); // we're the client, so start listening
+//	radio.openReadingPipe(1, addresses[0]);
+//	radio.startListening(); // we're the client, so start listening
 	radio.writeAckPayload(1, &message_count, sizeof(message_count));
 	++message_count;
 	radio.printDetails(); // Dump the configuration of the rf unit for debugging
@@ -85,10 +108,23 @@ void loop()
 
 } // end loop
 
+void setNodeId(uint8_t id)
+{
+	// Set the node ID
+	addresses[0][0] = clientConfig.nodeId;
+	// Stop listening
+	radio.stopListening();
+	// Open new pipe with new ID
+	radio.openReadingPipe(1, addresses[0]);
+	// Strart listening for commands
+	radio.startListening();
+}
+/**
+ * Handles serial commands and changing configuration
+ */
 void commandMode()
 {
-	uint8_t nodeid[2];
-	int id = 0;
+	uint8_t id = 0;
 
 	// Read first character - discard since it just gets us into command mode
 	char c = toupper(Serial.read());
@@ -102,23 +138,46 @@ void commandMode()
 	switch( c )
 	{
 	case 'C':
-		Serial.print(F("Enter 2 digit node ID: "));
+		Serial.print(F("** Change Node Id **\nCurrent "));
+		dumpClientConfiguration(&clientConfig);
+
+		Serial.print(F("\nEnter 1 digit node ID: "));
 		while(!Serial.available() ){}
-		nodeid[0] = Serial.read();
-		Serial.print( (char)nodeid[0] );
-		while(!Serial.available() ){}
-		nodeid[1] = Serial.read();
-		Serial.println( (char)nodeid[1] );
-		Serial.println(F("Processing..."));
-		id = atoi((char *)nodeid);
-		if( id >= 0 && id <= 10 )
+		id = Serial.read();
+		Serial.println( (char)id ); // echo what the user typed
+		Serial.println(F("\nProcessing...\n"));
+		if( id >= '0' && id <= '9' )
 		{
 			// set node id
-			Serial.print(F("Node ID accepted: "));
-			Serial.println( id, HEX);
+			clientConfig.nodeId = id;
+			dumpClientConfiguration(&clientConfig);
+			if( writeClientConfiguration(&clientConfig) )
+			{
+				Serial.print(F("Node ID accepted: "));
+				Serial.println( clientConfig.nodeId, HEX);
+
+				setNodeId(id);
+//				radio.stopListening();
+//				addresses[0][0] = clientConfig.nodeId;
+//				radio.openReadingPipe(1, addresses[0]);
+//				radio.startListening(); // we're the client, so start listening
+				radio.printDetails(); // Dump the configuration of the rf unit for debugging
+
+			}
+			else
+			{
+				Serial.println(F("Error saving configuration information."));
+			}
+		}
+		else
+		{
+			Serial.print(F("Illegal node value entered:"));
+			Serial.println(id);
 		}
 		break;
 	case 'D':
+		dumpClientConfiguration(&clientConfig);
+		radio.printDetails();
 		break;
 	case 'E':
 		break;

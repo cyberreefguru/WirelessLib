@@ -14,8 +14,6 @@
 #include "NeoWirelessLib.h"
 #include "NeoPixelWrapper.h"
 
-//#include <Adafruit_NeoPixel.h>
-
 
 #define NUM_PIXELS 50
 #define HALF NUM_PIXELS/2

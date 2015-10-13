@@ -7,6 +7,12 @@
 #ifndef _NeoWirelessLib_H_
 #define _NeoWirelessLib_H_
 #include "Arduino.h"
+#include <EEPROM.h>
+
+#define CONFIG_START_ADDRESS	0x10
+#define NODE_START_ADDRESS		0x20
+#define CLIENT_CONFIG_V10		0x01
+#define SERVER_CONFIG_V10		0x01
 
 // Basic Functions
 #define CMD_FILL                0x01
@@ -38,6 +44,25 @@
 //static const uint8_t COMMANDS[NUM_COMMANDS] = {CMD_PATTERN, CMD_RUNWAY, CMD_BOUNCE, CMD_MIDDLE, CMD_RAINBOW_FADE, CMD_RAINBOW_FADE_ONE, CMD_RANDOM_FLASH, CMD_RANDOM_FLASH_COLOR, CMD_SET_ALL};
 //static const uint8_t COMMAND_LEN[NUM_COMMANDS] = {18, 20, 20, 19, 4, 5, 7, 9};
 #define MAX_COMMAND_SIZE		27
+
+
+//	void setFramesPerSecond(uint8_t fps);
+
+typedef struct ClientConfiguration
+{
+	uint8_t version;
+	uint8_t nodeId;
+	uint8_t crc;
+} client_configuration_t;
+//static client_configuration_t *gClientConfiguration;
+
+typedef struct ServerConfiguration
+{
+	uint8_t version;
+	uint8_t numberNodes;
+	uint8_t crc;
+} server_configuration_t;
+static server_configuration_t *gServerConfiguration;
 
 
 //	void setFramesPerSecond(uint8_t fps);
@@ -199,6 +224,16 @@ typedef struct CommandJuggle
 	uint8_t command;
 } juggle_t;
 static juggle_t *cmdJuggle;
+
+
+
+uint8_t CRC8(const uint8_t *data, uint8_t len);
+uint8_t writeClientConfiguration(client_configuration_t *config);
+uint8_t readClientConfiguration(client_configuration_t *config);
+void dumpClientConfiguration(client_configuration_t *config);
+
+
+
 
 //Do not add code below this line
 #endif /* _NeoWirelessLib_H_ */

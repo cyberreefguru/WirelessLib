@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/NeoPixelLib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/FastLED}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/RF24/arch/${A.ARCHITECTURE}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.995662713" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -50,6 +51,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/NeoPixelLib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/FastLED}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/RF24/arch/${A.ARCHITECTURE}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeoWirelessClient/Libraries/EEPROM}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.247740229" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
