@@ -27,6 +27,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>NeoWirelessLib</name>
+			<type>2</type>
+			<locationURI>NeoWirelessServerNeoWirelessLib/NeoWirelessLib</locationURI>
+		</link>
+		<link>
+			<name>Libraries/EEPROM</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/EEPROM</locationURI>
+		</link>
+		<link>
 			<name>Libraries/FastLED</name>
 			<type>2</type>
 			<locationURI>ArduinoPrivateLibPath/FastLED</locationURI>
@@ -35,11 +45,6 @@
 			<name>Libraries/NeoPixelLib</name>
 			<type>2</type>
 			<locationURI>ArduinoPrivateLibPath/NeoPixelLib</locationURI>
-		</link>
-		<link>
-			<name>Libraries/NeoWirelessLib</name>
-			<type>2</type>
-			<locationURI>ArduinoPrivateLibPath/NeoWirelessLib</locationURI>
 		</link>
 		<link>
 			<name>Libraries/RF24</name>

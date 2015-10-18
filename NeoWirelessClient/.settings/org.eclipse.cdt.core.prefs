@@ -277,10 +277,10 @@ environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.DTS/value=3600
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.LOCAL/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.LOCAL/value=1444678616
+environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.LOCAL/value=1445164831
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.UTC/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.UTC/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.UTC/value=1444693016
+environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.UTC/value=1445179231
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.ZONE/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.EXTRA.TIME.ZONE/value=-18000
@@ -301,7 +301,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.I
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.5.8.HARDWAREPATH/value=/Applications/Arduino-1.5.8-Beta.app/Contents/Java/hardware
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.DATERUN/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.DATERUN/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.DATERUN/value=1442088334
+environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.DATERUN/value=1445094343
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.HARDWAREPATH/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.HARDWAREPATH/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.LAST.IDE.1.6.5.HARDWAREPATH/value=/Applications/Arduino-1.6.5.app/Contents/Java/hardware
@@ -532,7 +532,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SERIAL
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SERIAL.STOPBITS/value=1
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SKETCHBOOK.PATH/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SKETCHBOOK.PATH/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SKETCHBOOK.PATH/value=/Users/tsasala/Development/arduino
+environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SKETCHBOOK.PATH/value=/Users/tsasala/Documents/Arduino
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SOFTWARE/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SOFTWARE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.526943564/A.SOFTWARE/value=ARDUINO

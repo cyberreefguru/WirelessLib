@@ -27,9 +27,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Libraries/NeoPixel</name>
+			<name>Libraries/EEPROM</name>
 			<type>2</type>
-			<locationURI>ArduinoPrivateLibPath/NeoPixel</locationURI>
+			<locationURI>ArduinoHardwareLibPath/EEPROM</locationURI>
+		</link>
+		<link>
+			<name>Libraries/FastLED</name>
+			<type>2</type>
+			<locationURI>ArduinoPrivateLibPath/FastLED</locationURI>
 		</link>
 		<link>
 			<name>Libraries/RF24</name>
