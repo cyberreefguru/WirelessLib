@@ -4,8 +4,8 @@
 // - extern variable definitions
 // In the appropriate section
 
-#ifndef _NeoWirelessLib_H_
-#define _NeoWirelessLib_H_
+#ifndef _WirelessNeopixelLib_H_
+#define _WirelessNeopixelLib_H_
 #include "Arduino.h"
 #include <EEPROM.h>
 
@@ -236,4 +236,4 @@ void dumpClientConfiguration(client_configuration_t *config);
 
 
 //Do not add code below this line
-#endif /* _NeoWirelessLib_H_ */
+#endif /* _WirelessNeopixelLib_H_ */

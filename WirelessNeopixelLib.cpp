@@ -1,5 +1,5 @@
 // Do not remove the include below
-#include "NeoWirelessLib.h"
+#include "WirelessNeopixelLib.h"
 
 void dumpClientConfiguration(client_configuration_t *config)
 {
